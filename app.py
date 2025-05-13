@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
 
+import logging
+import os
 import pytz
+import subprocess
+import sys
 
 app = Flask(__name__)
 
@@ -50,5 +54,31 @@ def unravel():
     unravel_helper(data)
     return jsonify(result)
 
+@app.route('/roll', methods=['GET'])
+def roll():
+    """Pull latest code and reboot server"""
+    git_pull_command = ['git', 'pull', 'origin', 'main']
+    process = subprocess.run(
+        git_pull_command,
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=os.getcwd()
+    )
+    logging.info(f"Git pull successful:\n{process.stdout}")
+
+    response = jsonify({
+        "status": "success",
+        "message": "Update received, server restarting...",
+    })
+    @response.call_on_close
+    def on_close():
+        logging.info("Executing server restart via os.execv...")
+        try:
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+        except Exception as e:
+            return jsonify({"status": "error", "message": f"CRITICAL: Failed to restart script using os.execv: {e}"})
+    return response
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

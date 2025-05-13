@@ -1,6 +1,9 @@
 # simple-rest-api
 This repository contains my solution to the Breakthrough Energy contrails coding exercise.
 
+# Prerequsites
+Install ngrok. On macOS, run `brew install --cask ngrok`
+
 # To run the Flask application:
 1. Install the project dependencies using:
     ```bash
@@ -46,6 +49,9 @@ This should return a JSON response with the flattened list of keys and values.
 ```bash
 ["key1","keyA","foo",0,"bar","some other key",2,"finally","end"]
 ```
+
+# # /roll
+When called, it will pull the latest code available at the HEAD of your main GitHub branch and restart the app.
 
 
 
